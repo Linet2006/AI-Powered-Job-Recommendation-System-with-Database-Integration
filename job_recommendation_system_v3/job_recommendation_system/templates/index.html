@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AIJobMatch — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <style>
+    /* ── Extra v2 Styles ────────────────────────────────────────── */
+    .topbar {
+      position:sticky;top:0;z-index:100;
+      background:rgba(10,12,20,0.95);backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width:1200px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0.7rem 1.5rem;gap:1rem;flex-wrap:wrap;
+    }
+    .logo { display:flex;align-items:center;gap:0.5rem;font-size:1.2rem;font-weight:800;text-decoration:none;color:var(--text); }
+    .logo i { color:var(--primary); }
+    .logo b  { color:var(--primary); }
+
+    /* Dashboard tabs */
+    .dash-tabs { display:flex;gap:0.3rem;flex-wrap:wrap; }
+    .dash-tab {
+      padding:0.4rem 0.85rem;border-radius:8px;border:1px solid transparent;
+      background:transparent;color:var(--text-muted);cursor:pointer;
+      font-size:0.82rem;font-weight:500;font-family:inherit;
+      transition:all 0.2s;display:flex;align-items:center;gap:0.35rem;
+    }
+    .dash-tab:hover { color:var(--text);background:var(--bg-card); }
+    .dash-tab.active { background:var(--primary);color:#fff;border-color:var(--primary); }
+
+    /* User pill */
+    .user-pill {
+      display:flex;align-items:center;gap:0.6rem;
+      background:var(--bg-card);border:1px solid var(--border);
+      padding:0.35rem 0.8rem 0.35rem 0.5rem;border-radius:50px;
+      font-size:0.82rem;cursor:pointer;
+    }
+    .avatar {
+      width:28px;height:28px;border-radius:50%;
+      background:linear-gradient(135deg,var(--primary),var(--purple));
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.75rem;font-weight:700;color:#fff;flex-shrink:0;
+    }
+    .notif-btn {
+      position:relative;background:var(--bg-card);border:1px solid var(--border);
+      color:var(--text-muted);border-radius:8px;padding:0.4rem 0.6rem;
+      cursor:pointer;font-size:0.9rem;transition:all 0.2s;
+    }
+    .notif-btn:hover { color:var(--text);border-color:var(--primary); }
+    .notif-badge {
+      position:absolute;top:-5px;right:-5px;
+      background:var(--red);color:#fff;
+      border-radius:50%;width:17px;height:17px;
+      font-size:0.65rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    /* Main layout */
+    .dash-container { max-width:1200px;margin:0 auto;padding:1.5rem; }
+    .dash-section { display:none; }
+    .dash-section.active { display:block; }
+
+    /* Hero compact */
+    .hero-compact {
+      background:linear-gradient(135deg,#12151f 0%,#1a1040 100%);
+      border:1px solid var(--border);border-radius:var(--radius);
+      padding:2rem;margin-bottom:1.5rem;
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      flex-wrap:wrap;
+    }
+    .hero-compact h1 { font-size:1.6rem;font-weight:800;margin-bottom:0.3rem; }
+    .hero-compact p  { color:var(--text-muted);font-size:0.88rem; }
+    .hero-stats { display:flex;gap:1.5rem;flex-shrink:0; }
+    .hstat { text-align:center; }
+    .hstat-n { font-size:1.4rem;font-weight:800;color:var(--primary); }
+    .hstat-l { font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em; }
+
+    /* Two-column layout */
+    .two-col { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem; }
+    .three-col { display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem; }
+
+    /* Filter bar */
+    .filter-bar {
+      display:flex;gap:0.7rem;flex-wrap:wrap;align-items:flex-end;
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1.2rem;margin-bottom:1.5rem;
+    }
+    .filter-group { display:flex;flex-direction:column;gap:0.3rem;flex:1;min-width:150px; }
+    .filter-group label { font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em; }
+    .filter-inp {
+      padding:0.55rem 0.85rem;background:var(--bg-input);
+      border:1px solid var(--border);border-radius:8px;
+      color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;
+      transition:border-color 0.2s;
+    }
+    .filter-inp:focus { border-color:var(--primary); }
+
+    /* Job listing card */
+    .job-listing {
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1.25rem;margin-bottom:0.85rem;
+      transition:all 0.2s;
+    }
+    .job-listing:hover { border-color:var(--primary);transform:translateX(3px); }
+    .jl-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem; }
+    .jl-title { font-size:1rem;font-weight:700;margin-bottom:0.2rem; }
+    .jl-company { font-size:0.82rem;color:var(--text-muted); }
+    .jl-meta { display:flex;gap:0.6rem;flex-wrap:wrap;margin:0.6rem 0; }
+    .jl-tag {
+      padding:0.18rem 0.55rem;border-radius:6px;font-size:0.75rem;font-weight:500;
+      display:flex;align-items:center;gap:0.3rem;
+    }
+    .tag-loc  { background:rgba(99,102,241,0.1); color:var(--primary); }
+    .tag-type { background:rgba(16,185,129,0.1); color:var(--green);   }
+    .tag-sal  { background:rgba(245,158,11,0.1);  color:#f59e0b;       }
+    .jl-actions { display:flex;gap:0.5rem;margin-top:0.8rem;flex-wrap:wrap; }
+
+    /* Salary chart */
+    .salary-card {
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1.5rem;
+    }
+    .salary-bar-wrap { margin:1rem 0; }
+    .salary-range-bar {
+      height:12px;border-radius:20px;background:var(--bg-input);
+      position:relative;margin:0.5rem 0;overflow:visible;
+    }
+    .salary-fill {
+      position:absolute;height:100%;border-radius:20px;
+      background:linear-gradient(90deg,var(--primary),var(--purple));
+    }
+    .salary-avg-marker {
+      position:absolute;top:-4px;width:4px;height:20px;
+      background:var(--green);border-radius:2px;
+    }
+    .salary-labels { display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted); }
+
+    /* Notification panel */
+    .notif-dropdown {
+      position:absolute;top:calc(100% + 8px);right:0;z-index:200;
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);width:320px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);display:none;
+    }
+    .notif-dropdown.open { display:block; }
+    .notif-header {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:0.85rem 1rem;border-bottom:1px solid var(--border);
+    }
+    .notif-item {
+      padding:0.75rem 1rem;border-bottom:1px solid var(--border);
+      display:flex;gap:0.7rem;align-items:flex-start;
+      transition:background 0.15s;
+    }
+    .notif-item:hover { background:rgba(255,255,255,0.02); }
+    .notif-item.unread { background:rgba(99,102,241,0.05); }
+    .notif-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px; }
+    .nd-success { background:var(--green); }
+    .nd-info    { background:var(--primary); }
+    .nd-error   { background:var(--red); }
+    .notif-text { font-size:0.82rem;line-height:1.4; }
+    .notif-time { font-size:0.72rem;color:var(--text-dim);margin-top:0.2rem; }
+    .notif-empty { padding:1.5rem;text-align:center;color:var(--text-dim);font-size:0.85rem; }
+
+    /* Application status badges */
+    .status-badge {
+      padding:0.2rem 0.6rem;border-radius:6px;font-size:0.72rem;font-weight:700;text-transform:uppercase;
+    }
+    .s-applied     { background:rgba(99,102,241,0.1); color:var(--primary); }
+    .s-reviewing   { background:rgba(245,158,11,0.1);  color:#f59e0b; }
+    .s-shortlisted { background:rgba(16,185,129,0.1);  color:var(--green); }
+    .s-rejected    { background:rgba(239,68,68,0.1);   color:var(--red); }
+    .s-hired       { background:rgba(16,185,129,0.2);  color:var(--green);font-style:italic; }
+
+    /* Star rating */
+    .stars { color:#f59e0b;font-size:1rem;letter-spacing:0.1em; }
+    .star-input { display:flex;gap:0.3rem;margin-bottom:0.6rem; }
+    .star-input i { font-size:1.4rem;color:var(--dim);cursor:pointer;transition:color 0.15s; }
+    .star-input i.selected, .star-input i:hover { color:#f59e0b; }
+
+    /* Employer posting form */
+    .post-form { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem; }
+
+    /* Alert chip */
+    .alert-chip {
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--bg-input);border:1px solid var(--border);
+      border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:0.5rem;
+    }
+    .alert-chip-left { display:flex;align-items:center;gap:0.5rem;font-size:0.85rem; }
+    .alert-chip-left i { color:var(--primary); }
+    .del-alert-btn { background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.85rem;padding:0.2rem; }
+    .del-alert-btn:hover { color:var(--red); }
+
+    /* Cover note textarea */
+    .cover-note-area { display:none; }
+    .cover-note-area.visible { display:block; }
+
+    /* Role switcher */
+    .role-switch-bar {
+      display:flex;gap:0.5rem;padding:0.3rem;
+      background:var(--bg-input);border-radius:10px;
+      width:fit-content;margin-bottom:1.5rem;
+    }
+    .rsw-btn {
+      padding:0.45rem 1rem;border-radius:8px;border:none;
+      cursor:pointer;font-size:0.83rem;font-weight:600;font-family:inherit;
+      color:var(--text-muted);background:transparent;transition:all 0.2s;
+    }
+    .rsw-btn.active { background:var(--bg-card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+
+    @media(max-width:768px){
+      .two-col,.three-col { grid-template-columns:1fr; }
+      .hero-stats { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ═══════════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="logo"><i class="fa-solid fa-brain"></i>AI<b>Job</b>Match</a>
+
+    <nav class="dash-tabs" id="seeker-tabs">
+      <button class="dash-tab active" data-section="find">
+        <i class="fa-solid fa-magnifying-glass"></i> Find Jobs
+      </button>
+      <button class="dash-tab" data-section="recommend">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Match
+      </button>
+      <button class="dash-tab" data-section="applied">
+        <i class="fa-solid fa-briefcase"></i> Applied
+      </button>
+      <button class="dash-tab" data-section="alerts">
+        <i class="fa-solid fa-bell"></i> Alerts
+      </button>
+      <button class="dash-tab" data-section="resume">
+        <i class="fa-solid fa-file-lines"></i> Resume
+      </button>
+      <button class="dash-tab" data-section="history">
+        <i class="fa-solid fa-clock-rotate-left"></i> History
+      </button>
+    </nav>
+
+    <nav class="dash-tabs" id="employer-tabs" style="display:none">
+      <button class="dash-tab active" data-section="post-job">
+        <i class="fa-solid fa-plus-circle"></i> Post Job
+      </button>
+      <button class="dash-tab" data-section="my-postings">
+        <i class="fa-solid fa-list"></i> My Postings
+      </button>
+      <button class="dash-tab" data-section="applicants-view">
+        <i class="fa-solid fa-users"></i> Applicants
+      </button>
+    </nav>
+
+    <div style="display:flex;align-items:center;gap:0.6rem;position:relative">
+      <!-- Notification Bell -->
+      <button class="notif-btn" id="notif-bell" onclick="toggleNotifs()">
+        <i class="fa-solid fa-bell"></i>
+        <span class="notif-badge hidden" id="notif-count">0</span>
+      </button>
+      <div class="notif-dropdown" id="notif-dropdown">
+        <div class="notif-header">
+          <span style="font-weight:600;font-size:0.88rem">Notifications</span>
+          <button onclick="markAllRead()" style="background:none;border:none;color:var(--primary);font-size:0.75rem;cursor:pointer">Mark all read</button>
+        </div>
+        <div id="notif-list"><div class="notif-empty">No notifications yet</div></div>
+      </div>
+
+      <!-- User Pill -->
+      <div style="position:relative">
+        <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
+          <div class="avatar" id="user-avatar">?</div>
+          <span id="user-name-display">Guest</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-muted);margin-left:0.2rem"></i>
+        </div>
+        <div id="user-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
+          background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+          min-width:160px;z-index:300;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden">
+          <div id="user-menu-name" style="padding:0.75rem 1rem;border-bottom:1px solid var(--border);
+            font-size:0.82rem;color:var(--text-muted)">Signed in as <b id="user-menu-email" style="color:var(--text)"></b></div>
+          <button onclick="showHowTo()" style="width:100%;text-align:left;padding:0.65rem 1rem;
+            background:none;border:none;color:var(--text);font-size:0.85rem;cursor:pointer;
+            display:flex;align-items:center;gap:0.5rem;font-family:inherit;transition:background 0.15s">
+            <i class="fa-solid fa-circle-question" style="color:var(--primary)"></i> How to Use
+          </button>
+          <button onclick="logout()" style="width:100%;text-align:left;padding:0.65rem 1rem;
+            background:none;border:none;color:var(--red);font-size:0.85rem;cursor:pointer;
+            display:flex;align-items:center;gap:0.5rem;font-family:inherit;border-top:1px solid var(--border)">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Role Switch -->
+      <div class="role-switch-bar">
+        <button class="rsw-btn active" id="rsw-seeker"   onclick="switchDashRole('seeker')">
+          <i class="fa-solid fa-user"></i>
+        </button>
+        <button class="rsw-btn"        id="rsw-employer" onclick="switchDashRole('employer')">
+          <i class="fa-solid fa-building"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════════ -->
+<div class="dash-container">
+
+  <!-- ══ SEEKER: FIND JOBS ════════════════════════════════════════════════ -->
+  <section class="dash-section active" id="section-find">
+    <div class="hero-compact">
+      <div>
+        <h1>Find Your <span class="gradient-text">Dream Job</span> 🚀</h1>
+        <p>Search 42+ roles · Filter by location, type & salary · One-click apply</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-n" id="hs-jobs">42</div><div class="hstat-l">Jobs</div></div>
+        <div class="hstat"><div class="hstat-n" id="hs-companies">20+</div><div class="hstat-l">Domains</div></div>
+        <div class="hstat"><div class="hstat-n">NLP</div><div class="hstat-l">AI Powered</div></div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group" style="flex:2">
+        <label><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+        <input class="filter-inp" id="f-search" placeholder="Job title or skill..." oninput="filterJobs()"/>
+      </div>
+      <div class="filter-group">
+        <label><i class="fa-solid fa-location-dot"></i> Location</label>
+        <select class="filter-inp" id="f-location" onchange="filterJobs()">
+          <option value="">Any Location</option>
+          <option>Remote</option><option>Bangalore</option><option>Mumbai</option>
+          <option>Delhi</option><option>Hyderabad</option><option>Pune</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="fa-solid fa-briefcase"></i> Type</label>
+        <select class="filter-inp" id="f-type" onchange="filterJobs()">
+          <option value="">Any Type</option>
+          <option>Full-time</option><option>Part-time</option>
+          <option>Internship</option><option>Contract</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label><i class="fa-solid fa-indian-rupee-sign"></i> Min Salary (LPA)</label>
+        <select class="filter-inp" id="f-salary" onchange="filterJobs()">
+          <option value="0">Any</option>
+          <option value="300000">3+ LPA</option><option value="600000">6+ LPA</option>
+          <option value="1000000">10+ LPA</option><option value="2000000">20+ LPA</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="jobs-list"></div>
+  </section>
+
+  <!-- ══ SEEKER: AI RECOMMEND ═════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-recommend">
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-wand-magic-sparkles"></i><h2>AI Job Matching</h2></div>
+          <div class="form-group">
+            <label>Your Skills</label>
+            <input type="text" id="ai-skills" class="text-input" placeholder="Python, Machine Learning, SQL..."/>
+          </div>
+          <div class="form-group">
+            <label>Experience</label>
+            <select id="ai-exp" class="select-input">
+              <option value="fresher">Fresher / Intern</option>
+              <option value="1-2 years">1–2 Years</option>
+              <option value="3-5 years">3–5 Years</option>
+              <option value="5+ years">5+ Years</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Top N Results</label>
+            <input type="number" id="ai-topn" value="8" min="1" max="20" class="text-input"/>
+          </div>
+          <!-- Quick Tags -->
+          <div class="skill-tags">
+            <span class="tag-label">Quick:</span>
+            <button class="skill-tag" data-skill="Python">Python</button>
+            <button class="skill-tag" data-skill="Machine Learning">ML</button>
+            <button class="skill-tag" data-skill="SQL">SQL</button>
+            <button class="skill-tag" data-skill="React">React</button>
+            <button class="skill-tag" data-skill="Docker">Docker</button>
+            <button class="skill-tag" data-skill="AWS">AWS</button>
+            <button class="skill-tag" data-skill="TensorFlow">TensorFlow</button>
+          </div>
+          <button class="btn btn-primary" id="ai-btn">
+            <i class="fa-solid fa-rocket"></i> Get AI Recommendations
+          </button>
+        </div>
+
+        <!-- Salary Insights -->
+        <div class="salary-card" id="salary-box" style="display:none">
+          <div class="card-header" style="margin-bottom:0.5rem">
+            <i class="fa-solid fa-chart-line" style="color:#f59e0b"></i>
+            <h3 style="font-size:1rem">Salary Insights</h3>
+          </div>
+          <div id="salary-content"></div>
+        </div>
+      </div>
+
+      <div>
+        <div id="ai-results-box" class="hidden">
+          <div class="results-header">
+            <h2><i class="fa-solid fa-star" style="color:#f59e0b"></i> Top Matches</h2>
+            <span class="badge" id="ai-count"></span>
+          </div>
+          <div id="ai-results-grid" class="results-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skill Gap Modal -->
+    <div id="gap-modal" class="modal hidden">
+      <div class="modal-content">
+        <button class="modal-close" id="close-modal"><i class="fa-solid fa-xmark"></i></button>
+        <h2 id="gap-job-title"></h2>
+        <div id="gap-content"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SEEKER: APPLIED JOBS ══════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-applied">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-briefcase"></i><h2>My Applications</h2></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Your Account ID</label>
+          <input type="number" id="app-uid" class="text-input" placeholder="Enter your User ID"/>
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn btn-secondary" onclick="loadApplications()">
+            <i class="fa-solid fa-search"></i> Load
+          </button>
+        </div>
+      </div>
+      <div id="applications-list"></div>
+    </div>
+  </section>
+
+  <!-- ══ SEEKER: JOB ALERTS ════════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-alerts">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-bell"></i><h2>Create Job Alert</h2></div>
+        <p class="sub-text">Get notified when matching jobs are posted.</p>
+        <div class="form-group">
+          <label>Your Account ID</label>
+          <input type="number" id="alert-uid" class="text-input" placeholder="User ID"/>
+        </div>
+        <div class="form-group">
+          <label>Keywords / Skills</label>
+          <input type="text" id="alert-keywords" class="text-input" placeholder="Python, Data Science, ML..."/>
+        </div>
+        <div class="form-group">
+          <label>Preferred Location (optional)</label>
+          <input type="text" id="alert-location" class="text-input" placeholder="Remote, Bangalore..."/>
+        </div>
+        <button class="btn btn-primary" onclick="createAlert()">
+          <i class="fa-solid fa-bell"></i> Set Alert
+        </button>
+        <div id="alert-msg" class="msg hidden"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-list-check"></i><h2>My Alerts</h2></div>
+        <div id="alerts-list"><p class="no-results">Enter your User ID and set an alert to see them here.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SEEKER: RESUME ════════════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-resume">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-file-lines"></i><h2>Resume Skill Parser</h2></div>
+        <p class="sub-text">Upload a <strong>.txt</strong> file from your computer <em>or</em> paste your resume text. AI will extract your tech skills automatically.</p>
+
+        <!-- File Upload Zone -->
+        <div id="drop-zone" onclick="document.getElementById('resume-file-input').click()"
+             style="border:2px dashed var(--border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:1rem;transition:all 0.2s;background:var(--bg-input)">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:2rem;color:var(--primary);margin-bottom:0.5rem;display:block"></i>
+          <p style="font-weight:600;font-size:0.9rem;margin-bottom:0.25rem">Click to browse files</p>
+          <p style="font-size:0.78rem;color:var(--text-muted)">Supports .txt files · Max 5MB</p>
+          <input type="file" id="resume-file-input" accept=".txt" style="display:none" onchange="handleFileSelect(this)"/>
+        </div>
+
+        <!-- File selected indicator -->
+        <div id="file-selected-bar" style="display:none;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:0.6rem 0.9rem;margin-bottom:1rem;display:none;align-items:center;gap:0.6rem">
+          <i class="fa-solid fa-file-circle-check" style="color:var(--primary)"></i>
+          <span id="file-name-display" style="font-size:0.85rem;font-weight:600"></span>
+          <button onclick="clearFile()" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;color:var(--text-dim);font-size:0.78rem">
+          <div style="flex:1;height:1px;background:var(--border)"></div>or paste text below<div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <div class="form-group">
+          <textarea id="resume-text" class="textarea-input" rows="8"
+            placeholder="Paste your resume content here...&#10;&#10;Example:&#10;Software engineer with 2 years experience in Python, Django, and PostgreSQL. Deployed on AWS using Docker and Kubernetes. Familiar with React.js for frontend."></textarea>
+        </div>
+        <button class="btn btn-primary" id="extract-btn">
+          <i class="fa-solid fa-magnifying-glass"></i> Extract Skills from Resume
+        </button>
+      </div>
+      <div>
+        <div id="extracted-result-box" class="hidden card">
+          <div class="card-header"><i class="fa-solid fa-microchip"></i><h2>Extracted Skills</h2></div>
+          <div id="extracted-skills-pills" class="skills-pills"></div>
+          <div style="margin-top:1rem;display:flex;gap:0.6rem;flex-wrap:wrap">
+            <button class="btn btn-primary" id="use-skills-btn" style="flex:1">
+              <i class="fa-solid fa-rocket"></i> Use for AI Matching
+            </button>
+          </div>
+        </div>
+        <!-- Company Reviews -->
+        <div class="card" style="margin-top:1rem">
+          <div class="card-header"><i class="fa-solid fa-star"></i><h2>Company Reviews</h2></div>
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" id="review-company" class="text-input" placeholder="Google, Infosys..."/>
+          </div>
+          <button class="btn btn-secondary" onclick="loadReviews()" style="margin-bottom:0.8rem">
+            <i class="fa-solid fa-search"></i> Search Reviews
+          </button>
+          <div id="review-list"></div>
+
+          <!-- Add Review -->
+          <details style="margin-top:1rem">
+            <summary style="cursor:pointer;color:var(--primary);font-size:0.85rem;font-weight:600;padding:0.5rem 0">
+              <i class="fa-solid fa-plus"></i> Write a Review
+            </summary>
+            <div style="margin-top:0.8rem">
+              <div class="form-group">
+                <label>Your Account ID</label>
+                <input type="number" id="review-uid" class="text-input" placeholder="User ID"/>
+              </div>
+              <div class="form-group">
+                <label>Rating</label>
+                <div class="star-input" id="star-input">
+                  <i class="fa-solid fa-star" data-val="1"></i>
+                  <i class="fa-solid fa-star" data-val="2"></i>
+                  <i class="fa-solid fa-star" data-val="3"></i>
+                  <i class="fa-solid fa-star" data-val="4"></i>
+                  <i class="fa-solid fa-star" data-val="5"></i>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Review</label>
+                <textarea id="review-text" class="textarea-input" rows="3" placeholder="Share your experience..."></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group half">
+                  <label>Pros</label>
+                  <input type="text" id="review-pros" class="text-input" placeholder="Great culture..."/>
+                </div>
+                <div class="form-group half">
+                  <label>Cons</label>
+                  <input type="text" id="review-cons" class="text-input" placeholder="Long hours..."/>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="submitReview()">
+                <i class="fa-solid fa-paper-plane"></i> Submit Review
+              </button>
+              <div id="review-msg" class="msg hidden"></div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SEEKER: HISTORY ═══════════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-history">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-clock-rotate-left"></i><h2>Recommendation History</h2></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>User ID</label>
+          <input type="number" id="hist-uid" class="text-input" placeholder="Enter User ID"/>
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn btn-secondary" onclick="loadHistory()">
+            <i class="fa-solid fa-search"></i> Load History
+          </button>
+        </div>
+      </div>
+      <div id="history-result"></div>
+    </div>
+  </section>
+
+  <!-- ══ EMPLOYER: POST JOB ════════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-post-job">
+    <div class="two-col">
+      <div class="post-form">
+        <div class="card-header"><i class="fa-solid fa-plus-circle"></i><h2>Post a New Job</h2></div>
+        <div class="form-group">
+          <label>Your Employer ID</label>
+          <input type="number" id="emp-id" class="text-input" placeholder="Your account ID"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Job Title</label>
+            <input type="text" id="emp-title" class="text-input" placeholder="Senior ML Engineer"/>
+          </div>
+          <div class="form-group half">
+            <label>Company Name</label>
+            <input type="text" id="emp-company" class="text-input" placeholder="Acme Corp"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Location</label>
+            <input type="text" id="emp-location" class="text-input" placeholder="Remote / Bangalore"/>
+          </div>
+          <div class="form-group half">
+            <label>Job Type</label>
+            <select id="emp-type" class="select-input">
+              <option>Full-time</option><option>Part-time</option>
+              <option>Internship</option><option>Contract</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Min Salary (₹/yr)</label>
+            <input type="number" id="emp-sal-min" class="text-input" placeholder="500000"/>
+          </div>
+          <div class="form-group half">
+            <label>Max Salary (₹/yr)</label>
+            <input type="number" id="emp-sal-max" class="text-input" placeholder="1500000"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Required Skills</label>
+          <input type="text" id="emp-skills" class="text-input" placeholder="Python, TensorFlow, Docker, AWS..."/>
+        </div>
+        <div class="form-group">
+          <label>Job Description</label>
+          <textarea id="emp-desc" class="textarea-input" rows="4" placeholder="Describe the role, responsibilities..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="post-btn" onclick="postJob()">
+          <i class="fa-solid fa-paper-plane"></i> Post Job
+        </button>
+        <div id="post-msg" class="msg hidden"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa-solid fa-chart-pie"></i><h2>Employer Tips</h2></div>
+        <div style="display:flex;flex-direction:column;gap:0.8rem;margin-top:0.5rem">
+          <div style="display:flex;gap:0.7rem;align-items:flex-start">
+            <span style="color:var(--primary);font-size:1.1rem">💡</span>
+            <div><strong style="font-size:0.85rem">Be specific with skills</strong><p class="hint">List exact skills like "PyTorch" not just "ML" for better AI candidate matching.</p></div>
+          </div>
+          <div style="display:flex;gap:0.7rem;align-items:flex-start">
+            <span style="color:var(--green);font-size:1.1rem">📊</span>
+            <div><strong style="font-size:0.85rem">Add salary range</strong><p class="hint">Jobs with salary ranges get 3× more applications than those without.</p></div>
+          </div>
+          <div style="display:flex;gap:0.7rem;align-items:flex-start">
+            <span style="color:#f59e0b;font-size:1.1rem">🎯</span>
+            <div><strong style="font-size:0.85rem">Our AI does the matching</strong><p class="hint">Once posted, our NLP engine automatically surfaces your job to matched candidates.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EMPLOYER: MY POSTINGS ════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-my-postings">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-list"></i><h2>My Job Postings</h2></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Employer ID</label>
+          <input type="number" id="my-post-uid" class="text-input" placeholder="Your employer account ID"/>
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn btn-secondary" onclick="loadMyPostings()">
+            <i class="fa-solid fa-refresh"></i> Load
+          </button>
+        </div>
+      </div>
+      <div id="my-postings-list"></div>
+    </div>
+  </section>
+
+  <!-- ══ EMPLOYER: APPLICANTS ═════════════════════════════════════════════ -->
+  <section class="dash-section" id="section-applicants-view">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-users"></i><h2>View Applicants</h2></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label>Job Posting ID</label>
+          <input type="number" id="appl-job-id" class="text-input" placeholder="Enter job ID"/>
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn btn-secondary" onclick="loadApplicants()">
+            <i class="fa-solid fa-users"></i> Load Applicants
+          </button>
+        </div>
+      </div>
+      <div id="applicants-result"></div>
+    </div>
+  </section>
+
+</div><!-- end dash-container -->
+
+<!-- ─── Apply Modal ───────────────────────────────────────────────────────── -->
+<div id="apply-modal" class="modal hidden">
+  <div class="modal-content" style="max-width:440px">
+    <button class="modal-close" onclick="closeApplyModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h2 id="apply-modal-title">Apply for Job</h2>
+    <input type="hidden" id="apply-job-id"/>
+    <div class="form-group" style="margin-top:1rem">
+      <label>Your Account ID (User ID)</label>
+      <input type="number" id="apply-user-id" class="text-input" placeholder="Enter your User ID"/>
+    </div>
+    <div class="form-group">
+      <label>Cover Note <small style="color:var(--text-dim)">(optional)</small></label>
+      <textarea id="apply-cover" class="textarea-input" rows="4"
+        placeholder="Why are you a great fit for this role?"></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="submitApply()">
+      <i class="fa-solid fa-paper-plane"></i> Submit Application
+    </button>
+    <div id="apply-msg" class="msg hidden"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  v2 APP LOGIC
+// ════════════════════════════════════════════════════════════════════════════
+
+const API = "";
+let currentDashRole = 'seeker';
+let selectedRating  = 0;
+let currentUserId   = null;
+
+// ── Auth Guard + Session Load ────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const ok = loadSessionUser();
+  if (!ok) {
+    // Not logged in — redirect to login page
+    window.location.href = '/login';
+    return;
+  }
+  loadAllJobs();
+  setupStarRating();
+  setupSkillTags();
+  setupModalClose();
+  setupFileDrop();
+  // Poll notifications every 20s
+  setInterval(() => { if (currentUserId) fetchNotifications(); }, 20000);
+});
+
+function loadSessionUser() {
+  try {
+    const u = JSON.parse(localStorage.getItem('aijm_user') || 'null');
+    if (!u || !u.name) return false; // No valid session
+    document.getElementById('user-name-display').textContent = u.name.split(' ')[0];
+    document.getElementById('user-avatar').textContent       = u.name[0].toUpperCase();
+    currentUserId = u.id || null;
+    if (u.role === 'employer') switchDashRole('employer');
+    return true;
+  } catch { return false; }
+}
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('aijm_user');
+  window.location.href = '/login';
+}
+
+// ── Role switcher ─────────────────────────────────────────────────────────────
+function switchDashRole(role) {
+  currentDashRole = role;
+  document.getElementById('seeker-tabs').style.display   = role === 'seeker'   ? 'flex' : 'none';
+  document.getElementById('employer-tabs').style.display = role === 'employer' ? 'flex' : 'none';
+  document.getElementById('rsw-seeker').classList.toggle('active',   role === 'seeker');
+  document.getElementById('rsw-employer').classList.toggle('active', role === 'employer');
+  // Activate first tab of new role
+  const firstTab = document.querySelector(`#${role === 'seeker' ? 'seeker' : 'employer'}-tabs .dash-tab`);
+  if (firstTab) firstTab.click();
+}
+
+// ── Tab navigation ────────────────────────────────────────────────────────────
+document.querySelectorAll('.dash-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabGroup = btn.closest('.dash-tabs');
+    tabGroup.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+    const sec = document.getElementById(`section-${btn.dataset.section}`);
+    if (sec) sec.classList.add('active');
+  });
+});
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast toast-${type}`;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3500);
+}
+
+// ── Score helpers ─────────────────────────────────────────────────────────────
+function scoreColor(p) { return p>=70?'#10b981':p>=40?'#f59e0b':'#ef4444'; }
+function scoreBadge(p) { return p>=70?'badge-green':p>=40?'badge-amber':'badge-red'; }
+function fmtSalary(n)  { return n ? `₹${(n/100000).toFixed(1)}L` : '—'; }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FIND JOBS (with filters)
+// ══════════════════════════════════════════════════════════════════════════════
+let _allJobs = [];
+
+async function loadAllJobs() {
+  try {
+    const r = await fetch('/api/jobs'); const d = await r.json();
+    _allJobs = d.jobs || []; renderJobListings(_allJobs);
+  } catch { renderJobListings([]); }
+}
+
+function filterJobs() {
+  const search = document.getElementById('f-search').value.toLowerCase();
+  const loc    = document.getElementById('f-location').value.toLowerCase();
+  const type   = document.getElementById('f-type').value;
+  let filtered = _allJobs;
+  if (search) filtered = filtered.filter(j => j.job_title.toLowerCase().includes(search) || j.skills_required.toLowerCase().includes(search));
+  renderJobListings(filtered);
+}
+
+function renderJobListings(jobs) {
+  document.getElementById('hs-jobs').textContent = jobs.length;
+  const el = document.getElementById('jobs-list');
+  if (!jobs.length) { el.innerHTML = `<p class="no-results">No jobs found. Try different filters.</p>`; return; }
+  el.innerHTML = jobs.map(j => `
+    <div class="job-listing">
+      <div class="jl-top">
+        <div>
+          <div class="jl-title">${j.job_title}</div>
+          <div class="jl-company"><i class="fa-solid fa-building" style="color:var(--primary)"></i> AI Job Platform · Tech Industry</div>
+        </div>
+        <span class="match-badge badge-green" style="font-size:0.72rem">🤖 AI Listed</span>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.5rem">${j.description}</p>
+      <div class="jl-meta">
+        <span class="jl-tag tag-loc"><i class="fa-solid fa-location-dot"></i> Remote</span>
+        <span class="jl-tag tag-type"><i class="fa-solid fa-briefcase"></i> Full-time</span>
+        <span class="jl-tag tag-sal"><i class="fa-solid fa-indian-rupee-sign"></i> Competitive</span>
+      </div>
+      <div class="skills-pills">${j.skills_required.split(' ').slice(0,5).map(s=>`<span class="pill">${s}</span>`).join('')}</div>
+      <div class="jl-actions">
+        <button class="btn btn-primary" style="flex:none;padding:0.5rem 1.2rem;font-size:0.82rem"
+          onclick="openApplyModal(${j.id}, '${j.job_title.replace(/'/g,"\\'")}')">
+          <i class="fa-solid fa-bolt"></i> One-Click Apply
+        </button>
+        <button class="btn btn-outline" style="flex:none;padding:0.5rem 1rem;font-size:0.82rem;margin-top:0"
+          onclick="fetchSalaryForJob('${j.job_title}')">
+          <i class="fa-solid fa-chart-line"></i> Salary
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AI RECOMMENDATIONS
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('ai-btn').addEventListener('click', async () => {
+  const skills = document.getElementById('ai-skills').value.trim();
+  const topN   = document.getElementById('ai-topn').value;
+  if (!skills) { toast('Enter at least one skill.','error'); return; }
+
+  const btn = document.getElementById('ai-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Matching...';
+  try {
+    const r = await fetch('/api/recommend', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ skills, top_n: parseInt(topN), save: !!currentUserId, user_id: currentUserId })
+    });
+    const d = await r.json();
+    if (!d.success) { toast(d.error,'error'); return; }
+    renderAIResults(d.recommendations, skills);
+    fetchSalaryForJob(d.recommendations[0]?.job_title || '');
+    toast(`Found ${d.count} matches!`, 'success');
+  } catch { toast('Server offline — start Flask first.','error'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-rocket"></i> Get AI Recommendations';
+  }
+});
+
+function renderAIResults(jobs, userSkills) {
+  const box = document.getElementById('ai-results-box');
+  const grid = document.getElementById('ai-results-grid');
+  const count = document.getElementById('ai-count');
+  box.classList.remove('hidden');
+  count.textContent = `${jobs.length} matches`;
+  grid.innerHTML = jobs.map(j => `
+    <div class="job-card">
+      <div class="job-card-top">
+        <div>
+          <h3 class="job-title">${j.job_title}</h3>
+          <p class="job-desc">${j.description}</p>
+        </div>
+        <span class="match-badge ${scoreBadge(j.match_percent)}">${j.match_percent}%</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" style="width:${j.match_percent}%;background:${scoreColor(j.match_percent)}"></div></div>
+      <div class="progress-label"><span>Match Score</span><span style="color:${scoreColor(j.match_percent)};font-weight:600">${j.match_percent}%</span></div>
+      <div class="skills-pills">${j.skills_required.split(' ').slice(0,6).map(s=>`<span class="pill">${s}</span>`).join('')}</div>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn btn-outline" style="flex:1;margin-top:0;font-size:0.78rem"
+          onclick="showGapModal(${j.job_id},'${j.job_title.replace(/'/g,"\\'")}','${userSkills.replace(/'/g,"\\'")}')">
+          <i class="fa-solid fa-chart-simple"></i> Skill Gap
+        </button>
+        <button class="btn btn-primary" style="flex:none;padding:0.5rem 0.9rem;margin-top:0;font-size:0.78rem"
+          onclick="openApplyModal(${j.job_id},'${j.job_title.replace(/'/g,"\\'")}')">
+          <i class="fa-solid fa-bolt"></i> Apply
+        </button>
+      </div>
+    </div>`).join('');
+  box.scrollIntoView({ behavior:'smooth' });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SKILL GAP MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+async function showGapModal(jobId, jobTitle, userSkills) {
+  const r = await fetch('/api/recommend/gap', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ user_skills: userSkills, job_id: jobId })
+  });
+  const d = await r.json();
+  if (!d.success) { toast(d.error,'error'); return; }
+  const g = d.gap_analysis;
+  document.getElementById('gap-job-title').textContent = `${jobTitle} — Skill Gap`;
+  document.getElementById('gap-content').innerHTML = `
+    <div class="gap-stats">
+      <div class="gap-stat"><span class="gap-num" style="color:#10b981">${g.match_count}</span><span>Matched</span></div>
+      <div class="gap-stat"><span class="gap-num" style="color:#ef4444">${g.missing_skills.length}</span><span>Missing</span></div>
+      <div class="gap-stat"><span class="gap-num" style="color:#6366f1">${g.coverage_percent}%</span><span>Coverage</span></div>
+    </div>
+    <div class="gap-progress-wrap"><div class="gap-progress-bar" style="width:${g.coverage_percent}%;background:${scoreColor(g.coverage_percent)}"></div></div>
+    ${g.matched_skills.length?`<h4><i class="fa-solid fa-check" style="color:#10b981"></i> You Have</h4><div class="skills-pills">${g.matched_skills.map(s=>`<span class="pill pill-green">${s}</span>`).join('')}</div>`:''}
+    ${g.missing_skills.length?`<h4><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Skills to Learn</h4><div class="skills-pills">${g.missing_skills.map(s=>`<span class="pill pill-red">${s}</span>`).join('')}</div>`:'<p class="all-good">🎉 You have all required skills!</p>'}
+    ${g.extra_skills.length?`<h4><i class="fa-solid fa-plus" style="color:#a855f7"></i> Bonus Skills</h4><div class="skills-pills">${g.extra_skills.map(s=>`<span class="pill pill-purple">${s}</span>`).join('')}</div>`:''}
+  `;
+  document.getElementById('gap-modal').classList.remove('hidden');
+}
+
+function setupModalClose() {
+  document.getElementById('close-modal').onclick = () => document.getElementById('gap-modal').classList.add('hidden');
+  document.getElementById('gap-modal').onclick = e => { if (e.target===e.currentTarget) e.target.classList.add('hidden'); };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ONE-CLICK APPLY
+// ══════════════════════════════════════════════════════════════════════════════
+function openApplyModal(jobId, jobTitle) {
+  document.getElementById('apply-job-id').value    = jobId;
+  document.getElementById('apply-modal-title').textContent = `Apply: ${jobTitle}`;
+  document.getElementById('apply-msg').classList.add('hidden');
+  document.getElementById('apply-cover').value    = '';
+  if (currentUserId) document.getElementById('apply-user-id').value = currentUserId;
+  document.getElementById('apply-modal').classList.remove('hidden');
+}
+function closeApplyModal() { document.getElementById('apply-modal').classList.add('hidden'); }
+document.getElementById('apply-modal').onclick = e => { if(e.target===e.currentTarget) closeApplyModal(); };
+
+async function submitApply() {
+  const userId = document.getElementById('apply-user-id').value;
+  const jobId  = document.getElementById('apply-job-id').value;
+  const cover  = document.getElementById('apply-cover').value;
+  const msg    = document.getElementById('apply-msg');
+  if (!userId) { msg.className='msg msg-error';msg.textContent='Enter your User ID.';msg.classList.remove('hidden');return; }
+  try {
+    const r = await fetch('/api/apply', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id:parseInt(userId), job_id:parseInt(jobId), cover_note:cover })
+    });
+    const d = await r.json();
+    if (d.success) {
+      msg.className='msg msg-success'; msg.innerHTML='<i class="fa-solid fa-check-circle"></i> Application submitted!';
+      msg.classList.remove('hidden');
+      toast('Application submitted! 🎉','success');
+      setTimeout(closeApplyModal, 1500);
+    } else {
+      msg.className='msg msg-error'; msg.textContent=d.error;
+      msg.classList.remove('hidden');
+    }
+  } catch { toast('Server offline.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SALARY INSIGHTS
+// ══════════════════════════════════════════════════════════════════════════════
+async function fetchSalaryForJob(title) {
+  if (!title) return;
+  try {
+    const r = await fetch(`/api/salary/${encodeURIComponent(title)}`);
+    const d = await r.json();
+    if (!d.success) return;
+    const s = d.salary_data[0];
+    const range = s.max_salary - s.min_salary;
+    const avgPct = ((s.avg_salary - s.min_salary) / range * 100).toFixed(0);
+    document.getElementById('salary-box').style.display = 'block';
+    document.getElementById('salary-content').innerHTML = `
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.8rem">${s.job_title}</p>
+      <div class="salary-bar-wrap">
+        <div class="salary-range-bar">
+          <div class="salary-fill" style="left:0;width:100%"></div>
+          <div class="salary-avg-marker" style="left:${avgPct}%"></div>
+        </div>
+        <div class="salary-labels">
+          <span>${fmtSalary(s.min_salary)}</span>
+          <span style="color:var(--green);font-weight:600">Avg: ${fmtSalary(s.avg_salary)}</span>
+          <span>${fmtSalary(s.max_salary)}</span>
+        </div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.3rem">
+        <i class="fa-solid fa-location-dot"></i> ${s.location} · ${s.currency}
+      </div>`;
+  } catch {}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESUME EXTRACTOR
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('extract-btn').addEventListener('click', async () => {
+  const text = document.getElementById('resume-text').value.trim();
+  if (!text) { toast('Paste your resume text first.','error'); return; }
+  const btn = document.getElementById('extract-btn');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Extracting...';
+  try {
+    const r = await fetch('/api/resume/extract',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text})
+    });
+    const d = await r.json();
+    if (d.success && d.extracted_skills) {
+      const box = document.getElementById('extracted-result-box');
+      const pills = document.getElementById('extracted-skills-pills');
+      box.classList.remove('hidden');
+      pills.innerHTML = d.extracted_skills.split(',').map(s=>`<span class="pill">${s.trim()}</span>`).join('');
+      document.getElementById('use-skills-btn').onclick = () => {
+        document.getElementById('ai-skills').value = d.extracted_skills;
+        document.querySelector('[data-section="recommend"]').click();
+        toast('Skills loaded into AI Match!','success');
+      };
+      toast(`Extracted ${d.skill_count} skills!`,'success');
+    } else {
+      toast('No tech skills found in this text.','error');
+    }
+  } catch { toast('Server offline.','error'); }
+  finally {
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-magnifying-glass"></i> Extract Skills';
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// JOB ALERTS
+// ══════════════════════════════════════════════════════════════════════════════
+async function createAlert() {
+  const uid  = document.getElementById('alert-uid').value;
+  const kw   = document.getElementById('alert-keywords').value.trim();
+  const loc  = document.getElementById('alert-location').value.trim();
+  const msg  = document.getElementById('alert-msg');
+  if (!uid||!kw) { toast('Enter User ID and keywords.','error'); return; }
+  try {
+    const r = await fetch('/api/alerts',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({user_id:parseInt(uid),keywords:kw,location:loc})
+    });
+    const d = await r.json();
+    if (d.success) {
+      msg.className='msg msg-success'; msg.innerHTML='<i class="fa-solid fa-bell"></i> Alert created!';
+      msg.classList.remove('hidden');
+      loadAlerts(uid);
+      toast('Job alert set! 🔔','success');
+    } else { msg.className='msg msg-error'; msg.textContent=d.error; msg.classList.remove('hidden'); }
+  } catch { toast('Server offline.','error'); }
+}
+
+async function loadAlerts(uid) {
+  if (!uid) return;
+  try {
+    const r = await fetch(`/api/alerts/${uid}`); const d = await r.json();
+    const el = document.getElementById('alerts-list');
+    if (!d.alerts?.length) { el.innerHTML='<p class="no-results">No alerts yet.</p>'; return; }
+    el.innerHTML = d.alerts.map(a=>`
+      <div class="alert-chip">
+        <div class="alert-chip-left">
+          <i class="fa-solid fa-bell"></i>
+          <div>
+            <strong style="font-size:0.85rem">${a.keywords}</strong>
+            ${a.location?`<br/><small style="color:var(--text-muted)">📍 ${a.location}</small>`:''}
+          </div>
+        </div>
+        <button class="del-alert-btn" onclick="deleteAlert(${a.id},${uid})">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>`).join('');
+  } catch {}
+}
+
+async function deleteAlert(alertId, uid) {
+  await fetch(`/api/alerts/${alertId}?user_id=${uid}`,{method:'DELETE'});
+  toast('Alert deleted.','info');
+  loadAlerts(uid);
+}
+
+document.getElementById('alert-uid').addEventListener('change', function(){ loadAlerts(this.value); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════════════════════
+function toggleNotifs() {
+  const dd = document.getElementById('notif-dropdown');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open') && currentUserId) fetchNotifications();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#notif-bell') && !e.target.closest('#notif-dropdown'))
+    document.getElementById('notif-dropdown').classList.remove('open');
+});
+
+async function fetchNotifications() {
+  if (!currentUserId) return;
+  try {
+    const r = await fetch(`/api/notifications/${currentUserId}`);
+    const d = await r.json();
+    const badge = document.getElementById('notif-count');
+    if (d.unread_count > 0) {
+      badge.textContent = d.unread_count; badge.classList.remove('hidden');
+    } else { badge.classList.add('hidden'); }
+    const list = document.getElementById('notif-list');
+    if (!d.notifications?.length) { list.innerHTML='<div class="notif-empty">No notifications</div>'; return; }
+    list.innerHTML = d.notifications.map(n=>`
+      <div class="notif-item ${n.is_read?'':'unread'}">
+        <div class="notif-dot nd-${n.type}"></div>
+        <div>
+          <div class="notif-text">${n.message}</div>
+          <div class="notif-time">${n.created_at}</div>
+        </div>
+      </div>`).join('');
+  } catch {}
+}
+
+async function markAllRead() {
+  if (!currentUserId) return;
+  await fetch(`/api/notifications/${currentUserId}/read`,{method:'POST'});
+  document.getElementById('notif-count').classList.add('hidden');
+  fetchNotifications();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COMPANY REVIEWS
+// ══════════════════════════════════════════════════════════════════════════════
+function setupStarRating() {
+  document.querySelectorAll('#star-input i').forEach((star, i) => {
+    star.addEventListener('click', () => {
+      selectedRating = i+1;
+      document.querySelectorAll('#star-input i').forEach((s,j) => s.classList.toggle('selected', j<=i));
+    });
+  });
+}
+
+async function loadReviews() {
+  const company = document.getElementById('review-company').value.trim();
+  if (!company) { toast('Enter a company name.','error'); return; }
+  try {
+    const r = await fetch(`/api/reviews/${encodeURIComponent(company)}`);
+    const d = await r.json();
+    const el = document.getElementById('review-list');
+    if (!d.count) { el.innerHTML='<p class="no-results">No reviews yet for this company.</p>'; return; }
+    el.innerHTML = `<div style="margin-bottom:0.8rem;font-size:0.85rem;color:var(--text-muted)">
+      ${d.count} review${d.count>1?'s':''} · Avg: <span class="stars">${'★'.repeat(Math.round(d.average_rating))}</span> ${d.average_rating}
+    </div>` + d.reviews.map(rv=>`
+      <div style="border:1px solid var(--border);border-radius:8px;padding:0.85rem;margin-bottom:0.6rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem">
+          <strong style="font-size:0.85rem">${rv.reviewer_name}</strong>
+          <span class="stars" style="font-size:0.85rem">${'★'.repeat(rv.rating)}${'☆'.repeat(5-rv.rating)}</span>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-muted)">${rv.review_text}</p>
+        ${rv.pros?`<p style="font-size:0.78rem;color:var(--green);margin-top:0.3rem">✅ ${rv.pros}</p>`:''}
+        ${rv.cons?`<p style="font-size:0.78rem;color:var(--red)">❌ ${rv.cons}</p>`:''}
+      </div>`).join('');
+  } catch { toast('Server offline.','error'); }
+}
+
+async function submitReview() {
+  const uid  = document.getElementById('review-uid').value;
+  const co   = document.getElementById('review-company').value.trim();
+  const text = document.getElementById('review-text').value.trim();
+  const msg  = document.getElementById('review-msg');
+  if (!uid||!co||!text||!selectedRating) { toast('Fill all fields and select a rating.','error'); return; }
+  try {
+    const r = await fetch('/api/reviews',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        user_id:parseInt(uid), company_name:co, rating:selectedRating,
+        review_text:text, pros:document.getElementById('review-pros').value,
+        cons:document.getElementById('review-cons').value,
+      })
+    });
+    const d = await r.json();
+    if (d.success) { toast('Review submitted! ⭐','success'); loadReviews(); }
+    else { msg.className='msg msg-error';msg.textContent=d.error;msg.classList.remove('hidden'); }
+  } catch { toast('Server offline.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// APPLICATIONS
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadApplications() {
+  const uid = document.getElementById('app-uid').value;
+  if (!uid) { toast('Enter your User ID.','error'); return; }
+  try {
+    const r = await fetch(`/api/applications/${uid}`); const d = await r.json();
+    const el = document.getElementById('applications-list');
+    if (!d.applications?.length) { el.innerHTML='<p class="no-results">No applications yet.</p>'; return; }
+    el.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);margin:0.8rem 0">${d.count} application${d.count>1?'s':''}</p>`
+      + d.applications.map(a=>`
+        <div class="job-listing">
+          <div class="jl-top">
+            <div>
+              <div class="jl-title">${a.job_title}</div>
+              <div class="jl-company">${a.company} · ${a.location}</div>
+            </div>
+            <span class="status-badge s-${a.status}">${a.status}</span>
+          </div>
+          <div class="jl-meta">
+            <span class="jl-tag tag-type"><i class="fa-solid fa-briefcase"></i> ${a.job_type||'Full-time'}</span>
+            ${a.salary_min?`<span class="jl-tag tag-sal">${fmtSalary(a.salary_min)} – ${fmtSalary(a.salary_max)}</span>`:''}
+          </div>
+          <p style="font-size:0.78rem;color:var(--text-dim)">Applied: ${a.applied_at}</p>
+        </div>`).join('');
+  } catch { toast('Server offline.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadHistory() {
+  const uid = document.getElementById('hist-uid').value;
+  if (!uid) { toast('Enter User ID.','error'); return; }
+  try {
+    const r = await fetch(`/api/history/${uid}`); const d = await r.json();
+    const el = document.getElementById('history-result');
+    if (!d.success) { el.innerHTML=`<p class="no-results">${d.error}</p>`; return; }
+    const u = d.user;
+    el.innerHTML = `
+      <div class="user-info-card" style="margin:0.8rem 0">
+        <i class="fa-solid fa-user-circle fa-2x" style="color:var(--primary)"></i>
+        <div><strong>${u.name}</strong><br/><small>${u.email} · ${u.experience}</small><br/><small>Skills: ${u.skills}</small></div>
+      </div>
+      ${d.history.length ? d.history.map(h=>`
+        <div class="history-item">
+          <div><strong>${h.job_title}</strong><p class="job-desc">${h.description}</p></div>
+          <span class="match-badge ${scoreBadge(h.score*100)}">${(h.score*100).toFixed(1)}%</span>
+        </div>`).join('') : '<p class="no-results">No history yet.</p>'}`;
+  } catch { toast('Server offline.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EMPLOYER FEATURES
+// ══════════════════════════════════════════════════════════════════════════════
+async function postJob() {
+  const empId  = document.getElementById('emp-id').value;
+  const title  = document.getElementById('emp-title').value.trim();
+  const co     = document.getElementById('emp-company').value.trim();
+  const loc    = document.getElementById('emp-location').value.trim();
+  const type   = document.getElementById('emp-type').value;
+  const salMin = document.getElementById('emp-sal-min').value;
+  const salMax = document.getElementById('emp-sal-max').value;
+  const skills = document.getElementById('emp-skills').value.trim();
+  const desc   = document.getElementById('emp-desc').value.trim();
+  const msg    = document.getElementById('post-msg');
+
+  if (!empId||!title||!co||!skills||!desc) { toast('Fill all required fields.','error'); return; }
+  try {
+    const r = await fetch('/api/postings',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        employer_id:parseInt(empId), job_title:title, company:co,
+        location:loc||'Remote', job_type:type,
+        salary_min:salMin?parseInt(salMin):null, salary_max:salMax?parseInt(salMax):null,
+        skills_required:skills, description:desc
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      msg.className='msg msg-success';
+      msg.innerHTML=`<i class="fa-solid fa-check-circle"></i> Job posted! ID: <strong>${d.job_id}</strong>`;
+      msg.classList.remove('hidden');
+      toast('Job posted! 🎉','success');
+    } else { msg.className='msg msg-error';msg.textContent=d.error;msg.classList.remove('hidden'); }
+  } catch { toast('Server offline.','error'); }
+}
+
+async function loadMyPostings() {
+  const uid = document.getElementById('my-post-uid').value;
+  if (!uid) return;
+  try {
+    const r = await fetch(`/api/postings`); const d = await r.json();
+    const el = document.getElementById('my-postings-list');
+    const jobs = d.postings || [];
+    el.innerHTML = jobs.length ? jobs.map(j=>`
+      <div class="job-listing">
+        <div class="jl-top">
+          <div>
+            <div class="jl-title">${j.job_title} <span style="font-size:0.72rem;color:var(--primary)">ID: ${j.id}</span></div>
+            <div class="jl-company">${j.company} · ${j.location}</div>
+          </div>
+          <span class="jl-tag tag-type">${j.job_type}</span>
+        </div>
+        <div class="skills-pills">${j.skills_required.split(' ').slice(0,4).map(s=>`<span class="pill">${s}</span>`).join('')}</div>
+        <button class="btn btn-outline" style="margin-top:0.6rem;font-size:0.78rem"
+          onclick="document.getElementById('appl-job-id').value=${j.id};document.querySelector('[data-section=applicants-view]').click();loadApplicants()">
+          <i class="fa-solid fa-users"></i> View Applicants
+        </button>
+      </div>`).join('')
+    : '<p class="no-results">No postings yet. Post your first job!</p>';
+  } catch { toast('Server offline.','error'); }
+}
+
+async function loadApplicants() {
+  const jobId = document.getElementById('appl-job-id').value;
+  if (!jobId) return;
+  try {
+    const r = await fetch(`/api/postings/${jobId}/applicants`); const d = await r.json();
+    const el = document.getElementById('applicants-result');
+    if (!d.applicants?.length) { el.innerHTML='<p class="no-results">No applicants yet.</p>'; return; }
+    el.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.8rem">${d.count} applicant${d.count>1?'s':''}</p>`
+      + d.applicants.map(a=>`
+        <div class="job-listing">
+          <div class="jl-top">
+            <div>
+              <div class="jl-title">${a.name}</div>
+              <div class="jl-company">${a.email}</div>
+            </div>
+            <span class="status-badge s-${a.status}">${a.status}</span>
+          </div>
+          ${a.cover_note?`<p style="font-size:0.82rem;color:var(--text-muted);margin:0.4rem 0">"${a.cover_note}"</p>`:''}
+          <p style="font-size:0.75rem;color:var(--text-dim)">Applied: ${a.applied_at}</p>
+          <div style="display:flex;gap:0.4rem;margin-top:0.5rem;flex-wrap:wrap">
+            ${['reviewing','shortlisted','rejected','hired'].map(s=>
+              `<button onclick="updateStatus(${a.id},'${s}')" class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.72rem">${s}</button>`
+            ).join('')}
+          </div>
+        </div>`).join('');
+  } catch { toast('Server offline.','error'); }
+}
+
+async function updateStatus(appId, status) {
+  try {
+    await fetch(`/api/applications/${appId}/status`,{
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({status})
+    });
+    toast(`Status updated to: ${status}`,'success');
+    loadApplicants();
+  } catch { toast('Server offline.','error'); }
+}
+
+// ── Skill quick-add tags ──────────────────────────────────────────────────────
+function setupSkillTags() {
+  document.querySelectorAll('.skill-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const inp  = document.getElementById('ai-skills');
+      const skill = tag.dataset.skill;
+      inp.value = inp.value.trim() ? `${inp.value.trim()}, ${skill}` : skill;
+      tag.classList.toggle('active-tag');
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// USER MENU
+// ══════════════════════════════════════════════════════════════════════════════
+function toggleUserMenu() {
+  const m = document.getElementById('user-menu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  // Populate email
+  try {
+    const u = JSON.parse(localStorage.getItem('aijm_user') || '{}');
+    document.getElementById('user-menu-email').textContent = u.email || '';
+  } catch {}
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#user-pill') && !e.target.closest('#user-menu'))
+    document.getElementById('user-menu').style.display = 'none';
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FILE MANAGER — Resume Upload
+// ══════════════════════════════════════════════════════════════════════════════
+let _selectedFile = null;
+
+function setupFileDrop() {
+  const zone = document.getElementById('drop-zone');
+  if (!zone) return;
+  // Drag-over highlight
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor='var(--primary)'; zone.style.background='rgba(99,102,241,0.08)'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor='var(--border)'; zone.style.background='var(--bg-input)'; });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor='var(--border)'; zone.style.background='var(--bg-input)';
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  });
+}
+
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  if (!file.name.toLowerCase().endsWith('.txt')) {
+    toast('Only .txt files are supported. Save your resume as a .txt file.', 'error'); return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    toast('File too large. Max 5MB.', 'error'); return;
+  }
+  _selectedFile = file;
+  // Show selected file bar
+  const bar = document.getElementById('file-selected-bar');
+  document.getElementById('file-name-display').textContent = `📄 ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  bar.style.display = 'flex';
+  // Read file text into textarea
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('resume-text').value = e.target.result;
+    toast(`File loaded: ${file.name}`, 'success');
+  };
+  reader.readAsText(file);
+}
+
+function clearFile() {
+  _selectedFile = null;
+  document.getElementById('file-selected-bar').style.display = 'none';
+  document.getElementById('resume-file-input').value = '';
+  document.getElementById('resume-text').value = '';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HOW TO USE — Guide Modal
+// ══════════════════════════════════════════════════════════════════════════════
+function showHowTo() {
+  document.getElementById('user-menu').style.display = 'none';
+  document.getElementById('howto-modal').style.display = 'flex';
+}
+function closeHowTo() {
+  document.getElementById('howto-modal').style.display = 'none';
+}
+</script>
+
+<!-- ══ HOW TO USE MODAL ═══════════════════════════════════════════════════ -->
+<div id="howto-modal" style="display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;
+    max-width:680px;width:100%;max-height:90vh;overflow-y:auto;
+    padding:2rem;box-shadow:0 24px 64px rgba(0,0,0,0.6);position:relative">
+
+    <button onclick="closeHowTo()" style="position:absolute;top:1rem;right:1rem;
+      background:var(--bg-input);border:1px solid var(--border);color:var(--text-muted);
+      border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:1rem;
+      display:flex;align-items:center;justify-content:center">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">🤖</div>
+      <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.3rem">How to Use AIJobMatch</h2>
+      <p style="color:var(--text-muted);font-size:0.88rem">Your complete guide — read once, use forever</p>
+    </div>
+
+    <!-- Step by step -->
+    <div style="display:flex;flex-direction:column;gap:1rem">
+
+      <!-- Step 1 -->
+      <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);
+          color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div>
+          <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">
+            <i class="fa-solid fa-magnifying-glass" style="color:var(--primary)"></i> Find Jobs (Browse Tab)
+          </strong>
+          <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+            Go to <b>Find Jobs</b> tab. Use the <b>search box</b> to search by job title or skill (e.g. "Python").
+            Filter by <b>Location</b>, <b>Job Type</b>, and <b>Salary</b> using the dropdowns.
+            Click <b>One-Click Apply</b> on any job to submit your application instantly.
+            Enter your User ID when prompted (get it from the Register tab).
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);
+          color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div>
+          <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary)"></i> Get AI Job Matches
+          </strong>
+          <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+            Go to <b>AI Match</b> tab. Type your skills in the box (e.g. <em>Python, Machine Learning, SQL</em>)
+            or click the <b>Quick Add</b> buttons. Select your experience level and click
+            <b>Get AI Recommendations</b>. The AI ranks all 42+ jobs by how well they match your skills
+            and shows a <b>% match score</b>. Click <b>Skill Gap</b> on any result to see exactly
+            what skills you're missing for that role.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);
+          color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div>
+          <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">
+            <i class="fa-solid fa-file-lines" style="color:var(--primary)"></i> Upload Your Resume
+          </strong>
+          <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+            Go to <b>Resume</b> tab. Click the <b>upload box</b> to open your File Manager
+            and select your resume saved as a <b>.txt file</b>. You can also <b>drag and drop</b>
+            the file. Or just <b>paste your resume text</b> in the text box below.
+            Click <b>Extract Skills</b> — the AI will find all your tech skills automatically.
+            Then click <b>Use for AI Matching</b> to instantly run recommendations with those skills.
+          </p>
+          <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);
+            border-radius:8px;padding:0.6rem 0.8rem;margin-top:0.5rem;font-size:0.78rem;color:#f59e0b">
+            <i class="fa-solid fa-lightbulb"></i> <strong>Tip:</strong> To save your resume as .txt on Windows:
+            Open your resume in Notepad → File → Save As → change file type to "Text Document (.txt)"
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);
+          color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+        <div>
+          <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">
+            <i class="fa-solid fa-bell" style="color:var(--primary)"></i> Set Job Alerts
+          </strong>
+          <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+            Go to <b>Alerts</b> tab. Enter your User ID, type keywords like <em>Python, Data Science</em>
+            and an optional location. Click <b>Set Alert</b>. You'll get a notification whenever
+            matching jobs are posted. You can delete alerts anytime from the same page.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);
+          color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div>
+        <div>
+          <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">
+            <i class="fa-solid fa-briefcase" style="color:var(--primary)"></i> Track Applications
+          </strong>
+          <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+            Go to <b>Applied</b> tab. Enter your User ID and click Load to see all your
+            submitted applications with their current status:
+            <span style="color:var(--primary)">Applied</span> →
+            <span style="color:#f59e0b">Reviewing</span> →
+            <span style="color:var(--green)">Shortlisted</span> →
+            <span style="color:var(--green);font-style:italic">Hired</span>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Employer steps -->
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:0.5rem">
+        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0.8rem">
+          <i class="fa-solid fa-building" style="color:var(--green)"></i> For Employers
+        </p>
+        <div style="background:var(--bg-input);border-radius:12px;padding:1.2rem;display:flex;gap:1rem">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);
+            color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">E</div>
+          <div>
+            <strong style="font-size:0.95rem;display:block;margin-bottom:0.3rem">Post Jobs &amp; Manage Applicants</strong>
+            <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+              Click the <i class="fa-solid fa-building"></i> icon in the top-right to switch to
+              <b>Employer Mode</b>. Register an account with role = <b>Employer</b>.
+              Use <b>Post Job</b> to create a listing with salary, location, and required skills.
+              View <b>My Postings</b> to see all your jobs, then click
+              <b>Applicants</b> to review candidates and update their status to
+              Shortlisted, Rejected, or Hired.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Your User ID -->
+      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);
+        border-radius:12px;padding:1.2rem">
+        <strong style="font-size:0.9rem;display:block;margin-bottom:0.4rem">
+          <i class="fa-solid fa-id-card" style="color:var(--primary)"></i> What is my User ID?
+        </strong>
+        <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.6">
+          Your User ID is the number shown after you register. It's used in <b>Applied</b>,
+          <b>Alerts</b>, and <b>History</b> tabs to load your personal data.
+          <br/>If you forgot it — re-register with the same email and note the ID shown.
+          The ID is also printed in the success message when you first register.
+        </p>
+      </div>
+
+    </div><!-- end steps -->
+
+    <button onclick="closeHowTo()" class="btn btn-primary" style="width:100%;margin-top:1.5rem">
+      <i class="fa-solid fa-check"></i> Got it, Let's Go!
+    </button>
+  </div>
+</div>
+
+</body>
+</html>

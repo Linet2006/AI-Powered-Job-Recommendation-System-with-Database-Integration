@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AIJobMatch — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg:        #0a0c14;
+      --card:      #12151f;
+      --border:    #1e2235;
+      --primary:   #6366f1;
+      --primary-g: #818cf8;
+      --purple:    #a855f7;
+      --green:     #10b981;
+      --text:      #e2e8f0;
+      --muted:     #8892a4;
+      --dim:       #3a4255;
+      --red:       #ef4444;
+      --radius:    14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── LEFT PANEL ─────────────────────────────────────────── */
+    .left-panel {
+      flex: 1;
+      background: linear-gradient(135deg, #0d0f1a 0%, #1a1040 50%, #0d1020 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 3rem; position: relative; overflow: hidden;
+    }
+
+    /* Animated orbs */
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.25; animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 350px; height: 350px; background: #6366f1; top: -80px; left: -80px; animation-delay: 0s; }
+    .orb-2 { width: 280px; height: 280px; background: #a855f7; bottom: -60px; right: -60px; animation-delay: -3s; }
+    .orb-3 { width: 200px; height: 200px; background: #10b981; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -6s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-20px) scale(1.05); }
+    }
+
+    .left-content { position: relative; z-index: 1; text-align: center; }
+
+    .brand-logo {
+      font-size: 2.2rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.6rem; justify-content: center;
+    }
+    .brand-logo i { -webkit-text-fill-color: var(--primary); font-size: 2rem; }
+
+    .brand-tag {
+      color: var(--muted); font-size: 0.95rem; margin-bottom: 3rem;
+    }
+
+    /* Feature cards */
+    .feature-list { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 360px; }
+
+    .feature-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 1rem 1.2rem;
+      display: flex; align-items: center; gap: 1rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .feature-item:hover { transform: translateX(4px); border-color: rgba(99,102,241,0.3); }
+
+    .feature-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .fi-purple { background: rgba(99,102,241,0.2); color: var(--primary); }
+    .fi-green  { background: rgba(16,185,129,0.2);  color: var(--green);   }
+    .fi-pink   { background: rgba(168,85,247,0.2);  color: var(--purple);  }
+    .fi-amber  { background: rgba(245,158,11,0.2);  color: #f59e0b;        }
+
+    .feature-text strong { font-size: 0.9rem; display: block; }
+    .feature-text span   { font-size: 0.78rem; color: var(--muted); }
+
+    /* Stats row */
+    .stats-row {
+      display: flex; gap: 2rem; margin-top: 3rem;
+      text-align: center;
+    }
+    .stat-num  { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+    .stat-lbl  { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── RIGHT PANEL ─────────────────────────────────────────── */
+    .right-panel {
+      width: 480px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem; background: var(--bg);
+    }
+
+    .auth-card {
+      width: 100%; max-width: 420px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2.5rem;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-header h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .auth-header p  { color: var(--muted); font-size: 0.88rem; }
+
+    /* Role Selector */
+    .role-selector {
+      display: flex; gap: 0.6rem; margin-bottom: 1.8rem;
+      background: #0a0c14; border-radius: 10px; padding: 0.3rem;
+    }
+    .role-btn {
+      flex: 1; padding: 0.6rem; border-radius: 8px;
+      border: none; cursor: pointer; font-size: 0.85rem;
+      font-weight: 600; font-family: inherit;
+      color: var(--muted); background: transparent;
+      transition: all 0.2s; display: flex;
+      align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .role-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .role-btn.active.seeker   { border-bottom: 2px solid var(--primary); color: var(--primary); }
+    .role-btn.active.employer { border-bottom: 2px solid var(--green);   color: var(--green);   }
+
+    /* Tab Switcher */
+    .tab-switcher {
+      display: flex; gap: 0; margin-bottom: 1.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .auth-tab {
+      flex: 1; padding: 0.7rem; text-align: center;
+      cursor: pointer; font-size: 0.88rem; font-weight: 600;
+      color: var(--muted); border-bottom: 2px solid transparent;
+      transition: all 0.2s; background: none; border-top: none;
+      border-left: none; border-right: none; font-family: inherit;
+    }
+    .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* Form */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--muted); margin-bottom: 0.4rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .inp {
+      width: 100%; padding: 0.75rem 1rem;
+      background: #0a0c14; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-size: 0.92rem; font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+    }
+    .inp::placeholder { color: var(--dim); }
+    .inp:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    .inp-icon-wrap { position: relative; }
+    .inp-icon-wrap .inp { padding-left: 2.6rem; }
+    .inp-icon {
+      position: absolute; left: 0.9rem; top: 50%;
+      transform: translateY(-50%); color: var(--dim); font-size: 0.9rem;
+    }
+    .inp-eye {
+      position: absolute; right: 0.9rem; top: 50%;
+      transform: translateY(-50%); color: var(--dim);
+      cursor: pointer; font-size: 0.9rem;
+      background: none; border: none; padding: 0;
+    }
+
+    /* Social Buttons */
+    .social-btns { display: flex; gap: 0.6rem; margin-bottom: 1.4rem; }
+    .social-btn {
+      flex: 1; padding: 0.65rem; border-radius: 10px;
+      border: 1px solid var(--border); background: #0a0c14;
+      color: var(--text); cursor: pointer; font-size: 0.83rem;
+      font-weight: 600; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      transition: all 0.2s;
+    }
+    .social-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+    .social-btn img { width: 16px; height: 16px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin-bottom: 1.4rem; color: var(--dim); font-size: 0.78rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Submit Button */
+    .btn-auth {
+      width: 100%; padding: 0.85rem;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      border: none; border-radius: 10px; color: #fff;
+      font-size: 0.95rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all 0.2s; margin-top: 0.4rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-auth:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.35); }
+    .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Magic link */
+    .magic-link-btn {
+      width: 100%; padding: 0.75rem;
+      background: transparent; border: 1px dashed var(--border);
+      border-radius: 10px; color: var(--muted);
+      font-size: 0.83rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; margin-top: 0.6rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .magic-link-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Options row */
+    .options-row {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 1.1rem;
+    }
+    .checkbox-label {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.82rem; color: var(--muted); cursor: pointer;
+    }
+    .checkbox-label input[type=checkbox] { accent-color: var(--primary); }
+    .forgot-link {
+      font-size: 0.82rem; color: var(--primary);
+      text-decoration: none; background: none; border: none;
+      cursor: pointer; font-family: inherit;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Message */
+    .auth-msg {
+      padding: 0.75rem 1rem; border-radius: 8px;
+      font-size: 0.85rem; margin-top: 0.8rem;
+      display: none; align-items: center; gap: 0.5rem;
+    }
+    .auth-msg.success { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); display: flex; }
+    .auth-msg.error   { background: rgba(239,68,68,0.1);  color: var(--red);   border: 1px solid rgba(239,68,68,0.2);   display: flex; }
+    .auth-msg.info    { background: rgba(99,102,241,0.1); color: var(--primary);border: 1px solid rgba(99,102,241,0.2);  display: flex; }
+
+    /* MFA Panel */
+    .mfa-panel { display: none; }
+    .mfa-panel.visible { display: block; }
+    .otp-inputs { display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0; }
+    .otp-inp {
+      width: 48px; height: 52px; text-align: center;
+      font-size: 1.3rem; font-weight: 700;
+      background: #0a0c14; border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); outline: none;
+      transition: border-color 0.2s;
+    }
+    .otp-inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
+    /* Footer */
+    .auth-footer {
+      text-align: center; margin-top: 1.5rem;
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .auth-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    /* Loader */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LEFT PANEL ──────────────────────────────────────────────────────── -->
+<div class="left-panel">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="left-content">
+    <div class="brand-logo">
+      <i class="fa-solid fa-brain"></i>
+      AI<span style="-webkit-text-fill-color:#818cf8">Job</span>Match
+    </div>
+    <p class="brand-tag">AI-Powered Career Platform for the Modern Workforce</p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon fi-purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="feature-text">
+          <strong>AI Job Matching</strong>
+          <span>TF-IDF + Cosine Similarity ranks your best-fit roles</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-green"><i class="fa-solid fa-chart-bar"></i></div>
+        <div class="feature-text">
+          <strong>Skill Gap Analysis</strong>
+          <span>Know exactly what to learn for your dream job</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-pink"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="feature-text">
+          <strong>Smart Resume Parser</strong>
+          <span>Auto-extract skills from your resume with NLP</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-amber"><i class="fa-solid fa-bell"></i></div>
+        <div class="feature-text">
+          <strong>Real-Time Job Alerts</strong>
+          <span>Get notified the moment matching jobs are posted</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div><div class="stat-num">42+</div><div class="stat-lbl">Job Roles</div></div>
+      <div><div class="stat-num">NLP</div><div class="stat-lbl">AI Powered</div></div>
+      <div><div class="stat-num">100%</div><div class="stat-lbl">Free</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RIGHT PANEL ─────────────────────────────────────────────────────── -->
+<div class="right-panel">
+  <div class="auth-card">
+
+    <!-- Role Selector -->
+    <div class="role-selector">
+      <button class="role-btn seeker active" onclick="setRole('seeker', this)">
+        <i class="fa-solid fa-user"></i> Job Seeker
+      </button>
+      <button class="role-btn employer" onclick="setRole('employer', this)">
+        <i class="fa-solid fa-building"></i> Employer
+      </button>
+    </div>
+
+    <!-- Header -->
+    <div class="auth-header">
+      <h1 id="auth-title">Welcome Back 👋</h1>
+      <p id="auth-subtitle">Sign in to your job seeker account</p>
+    </div>
+
+    <!-- Login / Register Tabs -->
+    <div class="tab-switcher">
+      <button class="auth-tab active" id="tab-login"    onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab"        id="tab-register" onclick="switchAuthTab('register')">Create Account</button>
+    </div>
+
+    <!-- Social Login -->
+    <div class="social-btns">
+      <button class="social-btn" onclick="socialLogin('google')">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"/>
+        Google
+      </button>
+      <button class="social-btn" onclick="socialLogin('linkedin')">
+        <i class="fa-brands fa-linkedin" style="color:#0a66c2"></i> LinkedIn
+      </button>
+      <button class="social-btn" onclick="socialLogin('github')">
+        <i class="fa-brands fa-github"></i> GitHub
+      </button>
+    </div>
+
+    <div class="divider">or continue with email</div>
+
+    <!-- ── LOGIN FORM ──────────────────────────────────────────── -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-envelope inp-icon"></i>
+          <input class="inp" id="login-email" type="email" placeholder="you@example.com"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-lock inp-icon"></i>
+          <input class="inp" id="login-password" type="password" placeholder="Enter your password"/>
+          <button class="inp-eye" onclick="togglePass('login-password', this)">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="options-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="remember-me"/> Remember me
+        </label>
+        <button class="forgot-link" onclick="showForgot()">Forgot password?</button>
+      </div>
+
+      <button class="btn-auth" id="login-btn" onclick="handleLogin()">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+      </button>
+
+      <button class="magic-link-btn" onclick="sendMagicLink()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Send Magic Link Instead
+      </button>
+
+      <div class="auth-msg" id="login-msg"></div>
+    </div>
+
+    <!-- ── REGISTER FORM ───────────────────────────────────────── -->
+    <div id="register-form" style="display:none">
+      <div style="display:flex;gap:0.7rem">
+        <div class="form-group" style="flex:1">
+          <label>Full Name</label>
+          <div class="inp-icon-wrap">
+            <i class="fa-solid fa-user inp-icon"></i>
+            <input class="inp" id="reg-name" type="text" placeholder="Jane Doe"/>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-envelope inp-icon"></i>
+          <input class="inp" id="reg-email" type="email" placeholder="you@example.com"/>
+        </div>
+      </div>
+      <div id="reg-company-wrap" class="form-group" style="display:none">
+        <label>Company Name</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-building inp-icon"></i>
+          <input class="inp" id="reg-company" type="text" placeholder="Acme Corp"/>
+        </div>
+      </div>
+      <div id="reg-skills-wrap" class="form-group">
+        <label>Your Skills</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-code inp-icon"></i>
+          <input class="inp" id="reg-skills" type="text" placeholder="Python, ML, SQL, React..."/>
+        </div>
+      </div>
+      <div id="reg-exp-wrap" class="form-group">
+        <label>Experience Level</label>
+        <select class="inp" id="reg-exp">
+          <option value="fresher">Fresher / Intern</option>
+          <option value="1-2 years">1–2 Years</option>
+          <option value="3-5 years">3–5 Years</option>
+          <option value="5+ years">5+ Years</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="inp-icon-wrap">
+          <i class="fa-solid fa-lock inp-icon"></i>
+          <input class="inp" id="reg-password" type="password" placeholder="Min 6 characters"/>
+          <button class="inp-eye" onclick="togglePass('reg-password', this)">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Password strength -->
+      <div id="pwd-strength" style="margin:-0.5rem 0 0.8rem;display:none">
+        <div style="height:4px;border-radius:4px;background:#1e2235;overflow:hidden">
+          <div id="pwd-bar" style="height:100%;border-radius:4px;transition:all 0.3s;width:0%"></div>
+        </div>
+        <div id="pwd-label" style="font-size:0.72rem;margin-top:0.3rem;color:var(--muted)"></div>
+      </div>
+
+      <button class="btn-auth" id="register-btn" onclick="handleRegister()">
+        <i class="fa-solid fa-user-plus"></i> Create Account
+      </button>
+      <div class="auth-msg" id="register-msg"></div>
+    </div>
+
+    <!-- ── MFA PANEL ──────────────────────────────────────────── -->
+    <div id="mfa-panel" class="mfa-panel">
+      <div style="text-align:center;margin-bottom:1rem">
+        <div style="font-size:2rem;margin-bottom:0.5rem">🔐</div>
+        <h3 style="font-size:1rem;margin-bottom:0.3rem">Two-Factor Authentication</h3>
+        <p style="font-size:0.82rem;color:var(--muted)">Enter the 6-digit code sent to your email</p>
+      </div>
+      <div class="otp-inputs">
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,0)"/>
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,1)"/>
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,2)"/>
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,3)"/>
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,4)"/>
+        <input class="otp-inp" maxlength="1" oninput="otpNext(this,5)"/>
+      </div>
+      <button class="btn-auth" onclick="verifyOTP()">
+        <i class="fa-solid fa-shield-check"></i> Verify & Continue
+      </button>
+      <button class="magic-link-btn" onclick="hideMFA()" style="margin-top:0.5rem">
+        <i class="fa-solid fa-arrow-left"></i> Back to Login
+      </button>
+      <div class="auth-msg" id="mfa-msg"></div>
+    </div>
+
+    <!-- ── MAGIC LINK PANEL ───────────────────────────────────── -->
+    <div id="magic-panel" style="display:none;text-align:center;padding:1rem 0">
+      <div style="font-size:2.5rem;margin-bottom:1rem">✨</div>
+      <h3 style="margin-bottom:0.5rem">Magic Link Sent!</h3>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem">
+        Check your inbox for a sign-in link.<br/>It expires in 15 minutes.
+      </p>
+      <button class="btn-auth" onclick="hideMagicPanel()">
+        <i class="fa-solid fa-arrow-left"></i> Back to Login
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="auth-footer" id="auth-footer">
+      Don't have an account? <a href="#" onclick="switchAuthTab('register');return false">Sign up free</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  AUTH PAGE LOGIC
+// ════════════════════════════════════════════════════════════════
+
+let currentRole = 'seeker';
+let currentAuthTab = 'login';
+
+// ── Role Switcher ────────────────────────────────────────────────
+function setRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const isEmployer = role === 'employer';
+  document.getElementById('auth-title').textContent    = currentAuthTab === 'login' ? 'Welcome Back 👋' : (isEmployer ? 'Post Jobs Today 🏢' : 'Join AIJobMatch 🚀');
+  document.getElementById('auth-subtitle').textContent = `Sign in to your ${isEmployer ? 'employer' : 'job seeker'} account`;
+  document.getElementById('reg-company-wrap').style.display = isEmployer ? 'block' : 'none';
+  document.getElementById('reg-skills-wrap').style.display  = isEmployer ? 'none'  : 'block';
+  document.getElementById('reg-exp-wrap').style.display     = isEmployer ? 'none'  : 'block';
+}
+
+// ── Tab Switcher ─────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  currentAuthTab = tab;
+  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  const isEmployer = currentRole === 'employer';
+  document.getElementById('auth-title').textContent      = tab === 'login' ? 'Welcome Back 👋' : (isEmployer ? 'Post Jobs Today 🏢' : 'Join AIJobMatch 🚀');
+  document.getElementById('auth-subtitle').textContent   = `${tab === 'login' ? 'Sign in to' : 'Create'} your ${isEmployer ? 'employer' : 'job seeker'} account`;
+  document.getElementById('auth-footer').innerHTML = tab === 'login'
+    ? `Don't have an account? <a href="#" onclick="switchAuthTab('register');return false">Sign up free</a>`
+    : `Already have an account? <a href="#" onclick="switchAuthTab('login');return false">Sign in</a>`;
+}
+
+// ── Toggle Password Visibility ────────────────────────────────────
+function togglePass(id, btn) {
+  const inp  = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+  else                         { inp.type = 'password'; icon.className = 'fa-solid fa-eye'; }
+}
+
+// ── Password Strength ─────────────────────────────────────────────
+document.getElementById('reg-password').addEventListener('input', function() {
+  const v = this.value;
+  const el = document.getElementById('pwd-strength');
+  const bar = document.getElementById('pwd-bar');
+  const lbl = document.getElementById('pwd-label');
+  if (!v) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (/[A-Z]/.test(v)) score++;
+  if (/[0-9]/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v)) score++;
+  const levels = [
+    { pct: '25%', color: '#ef4444', text: 'Weak' },
+    { pct: '50%', color: '#f59e0b', text: 'Fair' },
+    { pct: '75%', color: '#6366f1', text: 'Good' },
+    { pct: '100%',color: '#10b981', text: 'Strong' },
+  ];
+  const l = levels[Math.max(0, score - 1)];
+  bar.style.width = l.pct; bar.style.background = l.color;
+  lbl.textContent = l.text; lbl.style.color = l.color;
+});
+
+// ── Show message ──────────────────────────────────────────────────
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.className = `auth-msg ${type}`;
+  el.innerHTML = `<i class="fa-solid fa-${type==='success'?'check-circle':type==='info'?'info-circle':'exclamation-circle'}"></i> ${text}`;
+}
+
+// ── Login Handler ─────────────────────────────────────────────────
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const btn   = document.getElementById('login-btn');
+
+  if (!email || !pass) { showMsg('login-msg','Please fill in all fields.','error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner spinner"></i> Signing in...';
+
+  try {
+    const res  = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass, role: currentRole })
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Save full user object to localStorage — dashboard reads this
+      saveSession(data.user);
+      showMFA(data);
+    } else {
+      showMsg('login-msg', data.error || 'Wrong email, password, or role.', 'error');
+    }
+  } catch {
+    showMsg('login-msg', 'Cannot reach server. Make sure Flask is running (python app.py)', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In';
+  }
+}
+
+function saveSession(user) {
+  localStorage.setItem('aijm_user', JSON.stringify(user));
+}
+
+// ── Register Handler ──────────────────────────────────────────────
+async function handleRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-password').value;
+  const btn   = document.getElementById('register-btn');
+
+  if (!name || !email || !pass) { showMsg('register-msg', 'Please fill all required fields.', 'error'); return; }
+  if (pass.length < 6) { showMsg('register-msg', 'Password must be at least 6 characters.', 'error'); return; }
+
+  const skills     = document.getElementById('reg-skills')?.value.trim() || '';
+  const experience = document.getElementById('reg-exp')?.value || 'fresher';
+  const company    = document.getElementById('reg-company')?.value.trim() || '';
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner spinner"></i> Creating account...';
+
+  try {
+    const body = { name, email, password: pass, role: currentRole, skills, experience, company };
+    const res  = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // Save minimal session so dashboard can load
+      saveSession({ id: data.user_id, name, email, role: currentRole, skills, experience });
+      showMsg('register-msg', `Account created! Welcome, ${name}! Redirecting...`, 'success');
+      setTimeout(() => window.location.href = '/', 1500);
+    } else {
+      showMsg('register-msg', data.error || 'Registration failed.', 'error');
+    }
+  } catch {
+    showMsg('register-msg', 'Cannot reach server. Make sure Flask is running (python app.py)', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+  }
+}
+
+// ── MFA ───────────────────────────────────────────────────────────
+function showMFA(userData) {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('mfa-panel').classList.add('visible');
+  document.querySelector('.tab-switcher').style.display = 'none';
+  document.querySelector('.social-btns').style.display  = 'none';
+  document.querySelector('.divider').style.display      = 'none';
+  document.getElementById('auth-footer').style.display  = 'none';
+  document.getElementById('auth-title').textContent     = 'Verify Identity 🔐';
+  document.getElementById('auth-subtitle').textContent  = 'Adaptive MFA — protecting your account';
+  // Store user data for after OTP
+  window._pendingUser = userData;
+}
+
+function hideMFA() {
+  document.getElementById('login-form').style.display = 'block';
+  document.getElementById('mfa-panel').classList.remove('visible');
+  document.querySelector('.tab-switcher').style.display = 'flex';
+  document.querySelector('.social-btns').style.display  = 'flex';
+  document.querySelector('.divider').style.display      = 'flex';
+  document.getElementById('auth-footer').style.display  = 'block';
+  document.getElementById('auth-title').textContent     = 'Welcome Back 👋';
+  document.getElementById('auth-subtitle').textContent  = `Sign in to your ${currentRole} account`;
+}
+
+function otpNext(inp, idx) {
+  if (inp.value.length === 1) {
+    const inputs = document.querySelectorAll('.otp-inp');
+    if (idx < 5) inputs[idx+1].focus();
+    else verifyOTP();
+  }
+}
+
+function verifyOTP() {
+  const code = Array.from(document.querySelectorAll('.otp-inp')).map(i => i.value).join('');
+  if (code.length < 6) { showMsg('mfa-msg','Enter all 6 digits.','error'); return; }
+  // Simulate OTP verification
+  showMsg('mfa-msg','Verified! Redirecting...','success');
+  const user = window._pendingUser?.user || window._pendingUser || { name: 'User', email: document.getElementById('login-email').value, role: currentRole };
+  saveSession(user);
+  setTimeout(() => window.location.href = '/', 1000);
+}
+
+// ── Magic Link ────────────────────────────────────────────────────
+function sendMagicLink() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showMsg('login-msg', 'Enter your email first to receive the magic link.', 'error'); return; }
+  document.getElementById('login-form').style.display  = 'none';
+  document.getElementById('magic-panel').style.display = 'block';
+  document.querySelector('.tab-switcher').style.display = 'none';
+  document.querySelector('.social-btns').style.display  = 'none';
+  document.querySelector('.divider').style.display      = 'none';
+  document.getElementById('auth-title').textContent    = 'Check Your Email 📬';
+  document.getElementById('auth-subtitle').textContent = email;
+}
+
+function hideMagicPanel() {
+  document.getElementById('magic-panel').style.display = 'none';
+  document.getElementById('login-form').style.display  = 'block';
+  document.querySelector('.tab-switcher').style.display = 'flex';
+  document.querySelector('.social-btns').style.display  = 'flex';
+  document.querySelector('.divider').style.display      = 'flex';
+  document.getElementById('auth-title').textContent    = 'Welcome Back 👋';
+  document.getElementById('auth-subtitle').textContent = `Sign in to your ${currentRole} account`;
+}
+
+// ── Forgot Password ───────────────────────────────────────────────
+function showForgot() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showMsg('login-msg', 'Enter your email address above first.', 'info'); return; }
+  showMsg('login-msg', `Password reset link sent to ${email}`, 'success');
+}
+
+// ── Social Login ──────────────────────────────────────────────────
+function socialLogin(provider) {
+  const names = { google: 'Google', linkedin: 'LinkedIn', github: 'GitHub' };
+  showMsg('login-msg', `Connecting to ${names[provider]}... (OAuth integration point)`, 'info');
+  // In production: window.location.href = `/api/auth/oauth/${provider}`
+  setTimeout(() => {
+    saveSession({ name: `${names[provider]} User`, email: `user@${provider}.com`, role: currentRole });
+    window.location.href = '/';
+  }, 1500);
+}
+
+// ── Keyboard support ──────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (currentAuthTab === 'login') handleLogin();
+    else handleRegister();
+  }
+});
+</script>
+</body>
+</html>
